@@ -1,0 +1,9 @@
+uvicorn[standard]
+SQLAlchemy
+FastAPI
+aiosqlite
+pydantic_settings
+python-jose[cryptography]
+passlib[argon2]
+python-dotenv
+email-validator
