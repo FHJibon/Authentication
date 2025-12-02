@@ -15,3 +15,11 @@ class UserRead(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+class SendOTPRequest(BaseModel):
+    email: EmailStr
+    purpose: str = "login"  # e.g., "signup" or "login"
+
+class VerifyOTPRequest(BaseModel):
+    email: EmailStr
+    code: str
