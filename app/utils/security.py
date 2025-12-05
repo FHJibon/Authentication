@@ -19,7 +19,6 @@ def get_password_hash(password: str):
     return pwd_context.hash(password)
 
 def generate_verification_code():
-    """Return a random 6-digit OTP code as string."""
     return str(random.randint(100000, 999999))
 
 def send_verification_email(recipient_email: str, code: str, subject: str = "Your Verification Code"):
@@ -32,7 +31,7 @@ def send_verification_email(recipient_email: str, code: str, subject: str = "You
     if not all([smtp_server, smtp_port, smtp_username, smtp_password, sender_email]):
         raise ValueError("SMTP credentials are not fully set in environment variables.")
 
-    body = f"Your verification code is: {code}\n\nThis code is only valid for 2 minutes."
+    body = f"Hey,\n\nYour verification code is: {code}\n\nThis code is only valid for 5 minutes.\n\nRegards,\nFerous Hasan"
 
     msg = MIMEMultipart()
     msg['From'] = sender_email
@@ -49,7 +48,6 @@ def send_verification_email(recipient_email: str, code: str, subject: str = "You
         raise RuntimeError(f"Failed to send email: {e}")
 
 def send_otp(recipient_email: str, purpose: str = "login") -> str:
-    """Generate a 6-digit OTP and email it. Returns the OTP string."""
     code = generate_verification_code()
     subject = f"Your {purpose.capitalize()} Code"
     send_verification_email(recipient_email, code, subject)

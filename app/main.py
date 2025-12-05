@@ -7,7 +7,7 @@ from app.config import settings
 from app.model.model import Base
 from app.api.v1.endpoints.auth import router as auth_router
 
-app = FastAPI(title="Async FastAPI Authentication")
+app = FastAPI(title="FastAPI Authentication")
 
 @app.on_event("startup")
 async def startup():
@@ -31,4 +31,4 @@ app.include_router(auth_router)
 
 @app.get("/")
 async def root():
-    return {"message": "Async FastAPI Auth is running!"}
+    return {"message": "FastAPI Auth is running!"}

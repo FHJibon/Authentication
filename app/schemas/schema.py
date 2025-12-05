@@ -16,9 +16,17 @@ class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
 
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr
+    code: str
+    new_password: str = Field(min_length=8, max_length=72)
+
 class SendOTPRequest(BaseModel):
     email: EmailStr
-    purpose: str = "login"  # e.g., "signup" or "login"
+    purpose: str = "login" 
 
 class VerifyOTPRequest(BaseModel):
     email: EmailStr

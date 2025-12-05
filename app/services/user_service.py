@@ -6,6 +6,7 @@ from app.utils.security import get_password_hash, verify_password, send_otp
 from datetime import datetime, timedelta
 
 _pending_signup: dict[str, tuple[str, str, datetime]] = {}
+_pending_password_reset: dict[str, tuple[str, datetime]] = {}
 
 def _now():
     return datetime.utcnow()
@@ -63,3 +64,32 @@ async def verify_signup(db: AsyncSession, email: str, code: str):
     await db.refresh(new_user)
     _pending_signup.pop(email, None)
     return new_user
+
+async def start_password_reset(email: str) -> None:
+    """Initiate password reset by sending an OTP to the user's email."""
+    code = send_otp(email, "password reset")
+    _pending_password_reset[email] = (code, _expiry())
+
+async def reset_password(db: AsyncSession, email: str, code: str, new_password: str) -> bool:
+    """Verify reset OTP and update the user's password."""
+    item = _pending_password_reset.get(email)
+    if not item:
+        return False
+    stored_code, expires_at = item
+    if _now() > expires_at:
+        _pending_password_reset.pop(email, None)
+        return False
+    if stored_code != code:
+        return False
+
+    user = await get_user_by_email(db, email)
+    if not user:
+        _pending_password_reset.pop(email, None)
+        return False
+
+    user.hashed_password = get_password_hash(new_password)
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    _pending_password_reset.pop(email, None)
+    return True
