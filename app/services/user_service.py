@@ -18,12 +18,12 @@ async def get_user_by_email(db: AsyncSession, email: str):
     result = await db.execute(select(User).where(User.email == email))
     return result.scalars().first()
 
-async def create_user(db: AsyncSession, email: str, password: str):
+async def create_user(db: AsyncSession, name: str, email: str, password: str):
     try:
         hashed_password = get_password_hash(password)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Password hashing error: {str(e)}")
-    user = User(email=email, hashed_password=hashed_password)
+    user = User(name=name, email=email, hashed_password=hashed_password)
     db.add(user)
     await db.commit()
     await db.refresh(user)
@@ -39,16 +39,16 @@ async def authenticate_user(db: AsyncSession, email: str, password: str):
 
     
 
-async def start_signup(email: str, password: str) -> None:
+async def start_signup(name: str, email: str, password: str) -> None:
     hashed = get_password_hash(password)
     code = send_otp(email, "signup")
-    _pending_signup[email] = (hashed, code, _expiry())
+    _pending_signup[email] = (name, hashed, code, _expiry())
 
 async def verify_signup(db: AsyncSession, email: str, code: str):
     item = _pending_signup.get(email)
     if not item:
         return False
-    hashed_password, stored_code, expires_at = item
+    name, hashed_password, stored_code, expires_at = item
     if _now() > expires_at:
         _pending_signup.pop(email, None)
         return False
@@ -58,7 +58,7 @@ async def verify_signup(db: AsyncSession, email: str, code: str):
     if user:
         _pending_signup.pop(email, None)
         return False
-    new_user = User(email=email, hashed_password=hashed_password)
+    new_user = User(name=name, email=email, hashed_password=hashed_password)
     db.add(new_user)
     await db.commit()
     await db.refresh(new_user)

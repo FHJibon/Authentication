@@ -2,11 +2,14 @@ from pydantic import BaseModel, EmailStr, Field
 from pydantic import ConfigDict
 
 class UserCreate(BaseModel):
+    name: str = Field(min_length=2, max_length=50)
     email: EmailStr
     password: str = Field(min_length=8, max_length=72)
+    confirm_password: str = Field(min_length=8, max_length=72)
 
 class UserRead(BaseModel):
     id: int
+    name: str
     email: EmailStr
     is_active: bool
 

@@ -13,7 +13,7 @@ async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
     exists = await get_user_by_email(db, user.email)
     if exists:
         raise HTTPException(status_code=400, detail="Email already registered")
-    await start_signup(user.email, user.password)
+    await start_signup(user.name, user.email, user.password)
     return {"message": f"OTP has been sent to {user.email}. Please verify to complete account creation."}
 
 @router.post("/login", response_model=Token)
